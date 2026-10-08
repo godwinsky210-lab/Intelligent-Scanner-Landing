@@ -1,0 +1,779 @@
+@import "tailwindcss";
+
+@theme {
+  /* Intelligent Scanner brand palette: deep navy primary, clean light surfaces. */
+  --color-navy-50: #f2f6fd;
+  --color-navy-100: #e2ebfa;
+  --color-navy-200: #c4d8f4;
+  --color-navy-300: #97b8e9;
+  --color-navy-400: #6192d9;
+  --color-navy-500: #3c72c4;
+  --color-navy-600: #2b57a3;
+  --color-navy-700: #244684;
+  --color-navy-800: #1d376a;
+  --color-navy-900: #142449;
+  --color-navy-950: #0a142e;
+
+  --color-ink-500: #5b6b86;
+  /* Ink colour for the handwritten page in the hero visual. A blue-black
+     ballpoint rather than the neutral UI grey, so the sheet reads as written
+     on rather than typeset. */
+  --color-ink-600: #1f3a63;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f6f8fc;
+
+  /* Handwriting stack for the hero page. Local faces only: no webfont request
+     and no new dependency. Each platform falls through to whichever script
+     face it ships, ending at the generic `cursive` family. Combined with the
+     per-line rotations in the hero component, this reads as pen on paper. */
+  --font-handwritten:
+    "Segoe Script", "Bradley Hand", "Chilanka", "Comic Sans MS", "Ink Free",
+    "Brush Script MT", cursive;
+
+  /* Typography */
+  --text-display: 3.5rem;
+
+  /* Radii */
+  --radius-card: 1.25rem;
+  --radius-card-lg: 1.75rem;
+  --radius-pill: 999px;
+
+  /* Soft, low-contrast elevation */
+  --shadow-soft: 0 1px 2px rgb(10 20 46 / 0.04), 0 8px 24px rgb(10 20 46 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(10 20 46 / 0.05), 0 18px 48px rgb(10 20 46 / 0.1);
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-navy-950);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-navy-500);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  ::selection {
+    background-color: var(--color-navy-200);
+    color: var(--color-navy-950);
+  }
+}
+
+@layer components {
+  /* Page gutter used by every section so spacing stays consistent. */
+  .container-page {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 40rem) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* The hero phone mockup is sized in container query units rather than
+     viewport units. The device is 384px wide on mobile and up to ~504px in the
+     desktop grid column, and `vw` has no relationship to either: at a 1440px
+     viewport a vw-sized document fills barely half the page, at 1920px it
+     nearly fills, with nothing in the markup changing. Declaring an inline-size
+     container makes `cqw` resolve against the phone's own width, so the
+     document holds the same proportion of the page at every breakpoint and
+     stays proportional when the device shrinks on mobile. */
+  .hero-device {
+    container-type: inline-size;
+  }
+
+  /* Same reasoning for the core capability phone, sized independently of the
+     hero device: the two mockups sit in columns of different widths and must
+     each hold their own proportions. Every size inside that mockup is in
+     `cqw`, so the interface keeps its layout from the narrowest phone up to
+     the widest grid column. */
+  .cap-device {
+    container-type: inline-size;
+  }
+
+  /* The floating accents sit outside that device, in the grid column around
+     it, so they measure against the column rather than the phone. Without
+     their own container their `cqw` would resolve against the nearest
+     ancestor container instead, which is the phone: the labels would shrink
+     as the phone grew, the opposite of what they should do. */
+  .cap-stage {
+    container-type: inline-size;
+  }
+
+  /* Range deliberately stops at navy-500 (4.78:1 on white) rather than
+     navy-300 (2.03:1), which failed contrast for text. Keeps AA at any size. */
+  .text-gradient-brand {
+    color: var(--color-navy-700);
+    background-image: linear-gradient(
+      120deg,
+      var(--color-navy-800) 0%,
+      var(--color-navy-600) 60%,
+      var(--color-navy-500) 100%
+    );
+  }
+
+  /* Fallback above paints solid navy-700 if gradient clipping is
+     unsupported, so the text is never invisible. */
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .text-gradient-brand {
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+}
+
+@layer utilities {
+  /* Entrance animation used sparingly on above-the-fold blocks. */
+  @keyframes is-fade-rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-fade-rise {
+    animation: is-fade-rise 0.7s var(--ease-out-soft) both;
+  }
+
+  /* Slow, single-pass sweep used by the hero viewfinder. Low frequency so it
+     reads as a scanning indicator rather than decoration. */
+  @keyframes is-scan-sweep {
+    0% {
+      transform: translateY(-4px);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(15rem);
+      opacity: 0;
+    }
+  }
+
+  .animate-scan-sweep {
+    animation: is-scan-sweep 4.5s var(--ease-out-soft) infinite;
+  }
+
+  /* ---------------------------------------------------------------------
+     Hero product demonstration: handwritten page -> scan -> extracted text.
+
+     One 20s cycle drives five elements that all share the same duration, so
+     they stay in phase without JavaScript. Percentages are the timeline:
+
+       0%  - 4%      the handwritten page settles in
+       4%  - 12%     corner guides activate
+       10% - 46%     scan line travels top to bottom of the page
+       46% - 56%     processing ("Extracting information")
+       56% - 84%     extracted, typed text is shown
+       84% - 94%     return to the handwritten page
+       94% - 100%    hold before repeating
+
+     The cycle is deliberately long. The document carries enough text to be
+     read, and a short cycle would cut sentences off mid-thought, so the scan
+     alone gets 7.2 seconds to cross the page and the page is legible for most
+     of the loop.
+
+     Nothing inside the page animates. The writing is static paper and only
+     the scan line moves over it, which is both what a scanner actually does
+     and what keeps every word readable while the line passes.
+
+     Every keyframe's opening value matches the element's static class, so
+     under prefers-reduced-motion (where the animations are removed) the
+     phone shows one stable frame of the handwritten page mid-scan.
+
+     Deliberately no JavaScript: this stays a server component, adds nothing
+     to the client bundle, and cannot desynchronise the states.
+     --------------------------------------------------------------------- */
+
+  /* Linear so the sweep reads at a constant, mechanical scanning speed.
+     The line crosses the full page between 10% and 46%, which is 7.2 seconds
+     of the 20s cycle: slow enough that a reader can follow it across the
+     text without waiting. */
+  @keyframes is-hero-scan {
+    0% {
+      top: 0%;
+      opacity: 0;
+    }
+    10% {
+      top: 2%;
+      opacity: 0.9;
+    }
+    46% {
+      top: 98%;
+      opacity: 0.9;
+    }
+    50%,
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+
+  /* The handwritten page: visible while scanning, hidden while processing
+     and showing results, then restored so the loop returns to the page. */
+  @keyframes is-hero-page {
+    0% {
+      opacity: 0;
+    }
+    4%,
+    46% {
+      opacity: 1;
+    }
+    52%,
+    80% {
+      opacity: 0;
+    }
+    90%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Guides activate: dim and slightly inset on arrival, then drawn in full so
+     the reticle visibly "arms" before the line passes. */
+  @keyframes is-hero-guides {
+    0%,
+    5% {
+      opacity: 0;
+      scale: 1.12;
+    }
+    12%,
+    46% {
+      opacity: 1;
+      scale: 1;
+    }
+    52%,
+    80% {
+      opacity: 0;
+      scale: 1;
+    }
+    90% {
+      opacity: 0;
+      scale: 1.12;
+    }
+    100% {
+      opacity: 0;
+      scale: 1.12;
+    }
+  }
+
+  @keyframes is-hero-extracted {
+    0%,
+    56% {
+      opacity: 0;
+    }
+    62%,
+    80% {
+      opacity: 1;
+    }
+    86%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Status card windows. Each mirrors the phase it describes: scanning spans
+     the scan line's travel, extracting spans processing, complete spans the
+     extracted view.
+
+     The scanning window deliberately runs across the loop boundary. The page
+     returns at 90% and the cycle restarts with the page still up, so a label
+     that stopped at 46% would leave the card empty for the last three seconds
+     and through the restart. Holding it to 100% and 0% also makes the card
+     itself seamless at the seam.
+
+     Adjacent pairs meet at zero rather than overlapping: at each handoff both
+     layers are at zero for a single frame, which avoids two labels ghosting
+     through each other. That costs a brief empty card during the ~1s in which
+     the page and the extracted view are cross-fading anyway. */
+  @keyframes is-hero-status-scan {
+    0%,
+    46% {
+      opacity: 1;
+    }
+    49%,
+    85% {
+      opacity: 0;
+    }
+    88%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes is-hero-status-extract {
+    0%,
+    49% {
+      opacity: 0;
+    }
+    52%,
+    57% {
+      opacity: 1;
+    }
+    60%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes is-hero-status-complete {
+    0%,
+    60% {
+      opacity: 0;
+    }
+    63%,
+    82% {
+      opacity: 1;
+    }
+    85%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Slow breathe on the active-state dot. Independent of the 20s cycle and
+     long enough not to read as a spinner; it is decoration on top of a state
+     the text already states in words. */
+  @keyframes is-hero-status-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* Indeterminate only: the highlight slides and nothing counts, so there is
+     no implied percentage, duration or progress figure.
+
+     Visible across the two in-flight states (scanning and extracting) and gone
+     once the work is complete, so the bar and the label never disagree. The
+     sweep restarts at each state boundary rather than running continuously:
+     a single unbroken slide across both phases would imply one continuous
+     operation, and a restart gives the same bar two independent timelines to
+     disagree with. */
+  @keyframes is-hero-progress {
+    0%,
+    3% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    6% {
+      opacity: 1;
+    }
+    44% {
+      transform: translateX(400%);
+      opacity: 1;
+    }
+    48%,
+    50% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    52% {
+      opacity: 1;
+    }
+    58% {
+      transform: translateX(400%);
+      opacity: 1;
+    }
+    62%,
+    100% {
+      transform: translateX(400%);
+      opacity: 0;
+    }
+  }
+
+  .animate-hero-scan {
+    animation: is-hero-scan 20s linear infinite;
+  }
+
+  .animate-hero-page {
+    animation: is-hero-page 20s ease-in-out infinite;
+  }
+
+  .animate-hero-guides {
+    animation: is-hero-guides 20s ease-out infinite;
+  }
+
+  .animate-hero-extracted {
+    animation: is-hero-extracted 20s ease-in-out infinite;
+  }
+
+  .animate-hero-status-scan {
+    animation: is-hero-status-scan 20s ease-in-out infinite;
+  }
+
+  .animate-hero-status-extract {
+    animation: is-hero-status-extract 20s ease-in-out infinite;
+  }
+
+  .animate-hero-status-complete {
+    animation: is-hero-status-complete 20s ease-in-out infinite;
+  }
+
+  /* Deliberately not on the 20s cycle: a slow breathe that sits under the
+     label rather than encoding any state itself. */
+  .animate-hero-status-dot {
+    animation: is-hero-status-dot 2.4s ease-in-out infinite;
+  }
+
+  .animate-hero-progress {
+    animation: is-hero-progress 20s linear infinite;
+  }
+
+  /* ---------------------------------------------------------------------
+     Core capability artwork: document -> scan -> extraction -> result.
+
+     One 14s cycle drives every phase, all sharing a single duration, so they
+     cannot fall out of step and there is no state machine. Percentages are
+     the timeline:
+
+        0%  -  4%      the page settles into the viewfinder
+        7%  - 12%      detected edges and crop handles arm
+       13%  - 46%      the beam travels the page
+       50%  - 58%      processing, with a page counter
+       65%  - 92%      the extracted result
+       70%  - 96%      the floating accents confirm it
+
+     The tail is the part that needed tuning. An earlier pass left the result
+     fading out at 88%, which put roughly 1.7 seconds at the end of every loop
+     with nothing on screen at all: no page, no text, no label. Holding the
+     result to 92% and letting the accents fall away by 96% gives the sequence
+     one short breath at the top of the cycle instead of a dead patch before
+     every restart.
+
+     Three of these keyframe sets are reused by more than one element on
+     purpose: the scanning status line shares the document's window and the
+     "extraction complete" line shares the result's, so a label cannot drift
+     away from the thing it is describing. That is the same reasoning as the
+     hero visual's status card.
+
+     Every keyframe's opening value matches the element's static class, so
+     with the animations removed each element falls back to a decided state
+     rather than to whatever the browser happened to compute. Those overrides
+     are pinned explicitly in the reduced-motion block below.
+
+     Named `is-cap-*` rather than reusing anything from the hero: these two
+     visuals have different durations and different phases, so sharing
+     keyframes between them would couple two things that only happen to look
+     similar.
+     --------------------------------------------------------------------- */
+  @keyframes is-cap-document {
+    0% {
+      opacity: 0;
+    }
+    4%,
+    46% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes is-cap-detect {
+    0%,
+    7% {
+      opacity: 0;
+    }
+    12%,
+    46% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* The beam parks at the top of the page while hidden, then travels once.
+     Both ends hold a `top` stop so it never creeps across the page during
+     the fade. Position jumps back at the loop seam, but the element is fully
+     transparent on both sides of that jump, so nothing is visible. */
+  @keyframes is-cap-beam {
+    0%,
+    13% {
+      top: 6%;
+      opacity: 0;
+    }
+    14% {
+      top: 6%;
+      opacity: 0.9;
+    }
+    46% {
+      top: 94%;
+      opacity: 0.9;
+    }
+    49%,
+    100% {
+      top: 94%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes is-cap-processing {
+    0%,
+    50% {
+      opacity: 0;
+    }
+    54%,
+    58% {
+      opacity: 1;
+    }
+    62%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Progress highlight inside the processing label.
+
+     It animates transform only and takes its visibility from the processing
+     layer that contains it, so the highlight cannot start moving while the
+     label is hidden. It runs a bare 0-100% because a loop-safe partial track
+     would need the slide to jump back mid-cycle at a point where the parent
+     is fully transparent. */
+  @keyframes is-cap-bar {
+    0% {
+      transform: translateX(-110%);
+    }
+    100% {
+      transform: translateX(240%);
+    }
+  }
+
+  .animate-cap-bar {
+    animation: is-cap-bar 14s linear infinite;
+  }
+
+  @keyframes is-cap-result {
+    0%,
+    61% {
+      opacity: 0;
+    }
+    65%,
+    92% {
+      opacity: 1;
+    }
+    96%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Floating accents. They rise into place as the result lands, which is the
+     only moment their wording is true: before that nothing has been
+     extracted. The late variant staggers one chip so the group assembles
+     rather than snapping on as one block.
+
+     They leave at 96%, with the result itself, so the accents and the thing
+     they describe never disagree at either edge of the window. */
+  @keyframes is-cap-chip {
+    0%,
+    66% {
+      transform: translateY(6px);
+      opacity: 0;
+    }
+    70%,
+    92% {
+      transform: none;
+      opacity: 1;
+    }
+    96%,
+    100% {
+      transform: translateY(-4px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes is-cap-chip-late {
+    0%,
+    70% {
+      transform: translateY(6px);
+      opacity: 0;
+    }
+    74%,
+    92% {
+      transform: none;
+      opacity: 1;
+    }
+    96%,
+    100% {
+      transform: translateY(-4px);
+      opacity: 0;
+    }
+  }
+
+  .animate-cap-document {
+    animation: is-cap-document 14s var(--ease-out-soft) infinite;
+  }
+
+  .animate-cap-detect {
+    animation: is-cap-detect 14s var(--ease-out-soft) infinite;
+  }
+
+  .animate-cap-beam {
+    animation: is-cap-beam 14s linear infinite;
+  }
+
+  .animate-cap-processing {
+    animation: is-cap-processing 14s var(--ease-out-soft) infinite;
+  }
+
+  .animate-cap-result {
+    animation: is-cap-result 14s var(--ease-out-soft) infinite;
+  }
+
+  .animate-cap-chip {
+    animation: is-cap-chip 14s var(--ease-out-soft) infinite;
+  }
+
+  .animate-cap-chip-late {
+    animation: is-cap-chip-late 14s var(--ease-out-soft) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .animate-fade-rise {
+      animation: none;
+    }
+
+    .animate-scan-sweep {
+      animation: none;
+      opacity: 0.6;
+      transform: translateY(7rem);
+    }
+
+    /* Core capability artwork: hold the result.
+
+       The extracted text is the one frame that states what the product is
+       for, so it is the frame worth freezing on. Everything that precedes it
+       is cleared explicitly rather than left to `animation: none` alone,
+       which would leave each element at whatever the browser last computed
+       and can therefore flash a different phase between renders.
+
+       The floating accents stay, because their wording is about the result
+       and the result is now what is on screen. */
+    .animate-cap-document,
+    .animate-cap-detect,
+    .animate-cap-beam,
+    .animate-cap-processing {
+      animation: none;
+      opacity: 0;
+    }
+
+    .animate-cap-result,
+    .animate-cap-chip,
+    .animate-cap-chip-late {
+      animation: none;
+      transform: none;
+      opacity: 1;
+    }
+
+    /* Nothing is in progress in the frozen frame, so the processing bar and
+       its highlight are cleared with the rest of the processing layer. */
+    .animate-cap-bar {
+      animation: none;
+      transform: none;
+    }
+
+    /* Hero demonstration: freeze on a single representative frame rather
+       than looping. The handwritten page stays fully visible with its text
+       intact, the guides stay armed, the scan line rests partway down, and the
+       extracted view remains hidden so no state can flicker between renders. */
+    .animate-hero-scan,
+    .animate-hero-page,
+    .animate-hero-guides,
+    .animate-hero-extracted,
+    .animate-hero-progress,
+    .animate-hero-status-dot {
+      animation: none;
+    }
+
+    .animate-hero-scan {
+      opacity: 0.6;
+      top: 45%;
+    }
+
+    /* Explicitly restore full opacity: `animation: none` alone leaves these
+       elements at whatever the browser computed, which is not guaranteed to
+       match the visible state we want. */
+    .animate-hero-page,
+    .animate-hero-guides {
+      opacity: 1;
+    }
+
+    .animate-hero-guides {
+      scale: 1;
+    }
+
+    .animate-hero-extracted {
+      opacity: 0;
+    }
+
+    /* Status card: one static, meaningful state rather than three
+       invisible ones. `animation: none` on the layers would leave whichever
+       label the browser last computed, so each is pinned explicitly: the
+       scanning label is shown because the frozen page is a page mid-scan,
+       and the other two are cleared. */
+    .animate-hero-status-scan {
+      animation: none;
+      opacity: 1;
+    }
+
+    .animate-hero-status-extract,
+    .animate-hero-status-complete {
+      animation: none;
+      opacity: 0;
+    }
+
+    /* The bar is tied to work in flight, so a finished static frame has
+       nothing in progress to show. */
+    .animate-hero-progress {
+      opacity: 0;
+    }
+  }
+}
