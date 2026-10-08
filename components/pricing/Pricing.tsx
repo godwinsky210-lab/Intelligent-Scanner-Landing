@@ -1,8 +1,6 @@
-import { pricing } from "@/lib/site";
+import { appDownload, pricing } from "@/lib/site";
 import { Container, Section } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Button } from "@/components/ui/Button";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { UsageVisual } from "./UsageVisual";
 
 export function Pricing() {
@@ -39,7 +37,6 @@ export function Pricing() {
                     {card.description}
                   </p>
                 </div>
-                <StatusBadge label={pricing.status} className="shrink-0" />
               </div>
 
               <ul className="mt-7 grid gap-3.5 sm:grid-cols-3 sm:gap-5">
@@ -57,8 +54,11 @@ export function Pricing() {
               </ul>
             </div>
 
-            {/* Usage visual: communicates the per-page model without quoting
-                a figure, since no price is active yet. */}
+            {/* Usage visual: communicates the per-page model. The artwork
+                itself carries no figure on purpose — the price is stated in
+                the points above, where it can be read as copy rather than
+                mistaken for part of the illustration. Bar heights are fixed,
+                so nothing on screen can be read as a changing quantity. */}
             <div className="border-t border-navy-100 bg-surface-muted px-7 py-8 sm:px-9">
               <UsageVisual />
             </div>
@@ -67,14 +67,18 @@ export function Pricing() {
             <div className="border-t border-navy-100 p-7 sm:p-9">
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  {/* Intentionally inert: no purchase is possible yet. */}
-                  <Button
-                    size="lg"
-                    aria-disabled="true"
-                    className="w-full cursor-not-allowed opacity-70 sm:w-auto"
+                  {/* External direct download, so this is a plain anchor rather
+                      than `Button`: next/link is for internal routes, and
+                      GitHub serves the asset with `Content-Disposition:
+                      attachment`, which is what triggers the download. The class
+                      string reproduces Button's primary variant at size `lg`. */}
+                  <a
+                    href={appDownload.url}
+                    download
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-pill bg-navy-800 px-6 py-3 text-base font-medium text-white shadow-soft transition-colors duration-200 hover:bg-navy-700 hover:shadow-lift sm:w-auto"
                   >
-                    {card.cta}
-                  </Button>
+                    {appDownload.label}
+                  </a>
                   <p className="mt-3 text-sm text-ink-500">{card.ctaNote}</p>
                 </div>
               </div>

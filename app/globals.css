@@ -672,9 +672,215 @@
     animation: is-cap-chip-late 14s var(--ease-out-soft) infinite;
   }
 
+  /* ---------------------------------------------------------------------
+     First-paint startup overlay.
+
+     A direct port of the mobile app's startup screen
+     (`src/features/startup/startup-screen.tsx` in the app repository), so
+     the site opens on the same screen the app does. The component that
+     renders this markup, and the source of every value below, is
+     `components/brand/StartupOverlay.tsx`.
+
+     Two custom properties carry the responsive sizing, exactly as the app
+     derives them from `useWindowDimensions`:
+
+       logo size   clamp(min(100vw, 100vh) * 0.26, 96px, 150px)
+       track width clamp(160px, 55vw, 220px)
+
+     The comet's travel is `track / 2 - 46 - 8`, matching the app's
+     `trackWidth / 2 - COMET_WIDTH / 2 - TRACK_INSET`.
+
+     Nothing here needs JavaScript to end: the dismissal keyframe holds the
+     panel solid for 85% of 2000ms, fades over the last 300ms, and
+     interpolates `visibility` alongside `opacity` so the element only flips
+     to `hidden` at 100%. `animation-fill-mode: forwards` keeps it there.
+     `visibility: hidden` is what makes it stop hit-testing, so the page
+     underneath becomes interactive again with no timer and no listener.
+
+     Timings are the app's: 320ms ease-out entrance, 1700ms ease-in-out
+     comet leg, 3200ms glow cycle (1600ms per way). 2000ms total is long
+     enough for the comet to complete one full left-to-right pass, which is
+     the part of the loop that reads as a scan.
+     --------------------------------------------------------------------- */
+
+  .is-startup-overlay {
+    --is-logo-size: clamp(96px, calc(min(100vw, 100vh) * 0.26), 150px);
+    --is-track-width: clamp(160px, 55vw, 220px);
+
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #5046c8;
+    animation: is-startup-dismiss 2000ms linear forwards;
+  }
+
+  .is-startup-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    /* Easing.out(Easing.quad) */
+    animation: is-startup-enter 320ms cubic-bezier(0.5, 1, 0.89, 1) both;
+  }
+
+  .is-startup-mark {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* `position: relative` is load-bearing, not decorative. The glow is
+     absolutely positioned, and CSS paints positioned descendants above
+     in-flow non-positioned ones regardless of source order — so without this
+     the white glow would land on top of the logo instead of behind it, which
+     is the opposite of the app, where the glow View precedes the Image and RN
+     draws siblings in order. Making the logo positioned as well drops it into
+     the same paint layer, where tree order decides and the logo comes second. */
+  .is-startup-logo {
+    position: relative;
+    width: var(--is-logo-size);
+    height: var(--is-logo-size);
+    object-fit: contain;
+  }
+
+  /* Offset with a translate rather than `inset: 0; margin: auto`: the glow
+     is 1.9x the logo, so it is larger than its containing block and auto
+     margins would resolve to 0 instead of centring it. The translate is
+     repeated in the keyframes so `transform` stays one uninterrupted chain
+     of `translate(-50%, -50%) scale(...)`. */
+  .is-startup-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--is-logo-size) * 1.9);
+    height: calc(var(--is-logo-size) * 1.9);
+    border-radius: 999px;
+    background-color: rgb(255 255 255 / 0.1);
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0.35;
+    animation: is-startup-glow 3200ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+
+  .is-startup-track {
+    position: relative;
+    width: var(--is-track-width);
+    height: 3px;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: rgb(255 255 255 / 0.22);
+  }
+
+  .is-startup-comet {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 92px;
+    margin-left: -46px;
+    /* `alternate` is the app's reversing `withRepeat(-1, true)`: the comet
+       eases back rather than snapping to the far end on every other pass. */
+    animation: is-startup-sweep 1700ms cubic-bezier(0.45, 0, 0.55, 1)
+      infinite alternate;
+  }
+
+  .is-startup-band {
+    position: absolute;
+    top: 0;
+    height: 3px;
+    border-radius: 999px;
+    background-color: #fff;
+  }
+
+  .is-startup-band-tail {
+    left: 0;
+    width: 92px;
+    opacity: 0.14;
+  }
+
+  .is-startup-band-mid {
+    left: 13px;
+    width: 66px;
+    opacity: 0.38;
+  }
+
+  .is-startup-band-head {
+    left: 24px;
+    width: 44px;
+    opacity: 1;
+  }
+
+  /* The app's `marginTop: Spacing.two`, on top of the stage's 24px gap. */
+  .is-startup-wordmark {
+    margin-top: 8px;
+    color: rgb(255 255 255 / 0.72);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.4px;
+    line-height: normal;
+  }
+
+  @keyframes is-startup-enter {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes is-startup-glow {
+    0% {
+      opacity: 0.35;
+      transform: translate(-50%, -50%) scale(0.92);
+    }
+    50% {
+      opacity: 0.9;
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+    100% {
+      opacity: 0.35;
+      transform: translate(-50%, -50%) scale(0.92);
+    }
+  }
+
+  @keyframes is-startup-sweep {
+    from {
+      transform: translateX(calc(var(--is-track-width) / 2 - 54px));
+    }
+    to {
+      transform: translateX(calc(54px - var(--is-track-width) / 2));
+    }
+  }
+
+  /* `visibility` is held at `visible` for the whole interpolation and only
+     resolves to `hidden` at 100%, so the panel cannot become transparent to
+     pointer events while it is still on screen. */
+  @keyframes is-startup-dismiss {
+    0%,
+    85% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+
+    /* Removed outright rather than frozen. The overlay has no content worth
+       showing on its own — it exists to play the sweep — so a still indigo
+       panel covering the page would be the worst outcome of this preference. */
+    .is-startup-overlay {
+      display: none;
     }
 
     .animate-fade-rise {

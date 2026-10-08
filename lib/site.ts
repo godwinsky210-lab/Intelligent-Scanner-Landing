@@ -27,7 +27,7 @@ const siteUrl =
 export { siteUrl };
 
 /**
- * Android APK download, published as GitHub Release v1.0.0.
+ * Android APK download, published as GitHub Release v2.0.0.
  *
  * Points at the release asset itself rather than the release page so the
  * link downloads the file directly. GitHub serves these with
@@ -40,7 +40,7 @@ export { siteUrl };
  */
 export const appDownload = {
   label: "Download Android App",
-  url: "https://github.com/godwinsky210-lab/Intelligent-Scanner-Landing/releases/download/v1.0.0/Intelligent-Scanner-v1.0.0.apk",
+  url: "https://github.com/godwinsky210-lab/Intelligent-Scanner-Landing/releases/download/v2.0.0/Intelligent-Scanner-v2.0.0.apk",
   releasePage: "https://github.com/godwinsky210-lab/Intelligent-Scanner-Landing/releases",
 } as const;
 
@@ -59,12 +59,11 @@ export const navLinks = [
  * Avoids vendor names and comparative claims.
  *
  * The primary CTA label lives in `appDownload` rather than here, since it
- * describes the download rather than the hero. `badge` still says "Currently
- * in testing" because that remains true: the Android APK is published as an
- * early testing release, not a finished launch.
+ * describes the download rather than the hero. There is deliberately no
+ * status badge here: availability is already stated by `site.statusDetail`
+ * and demonstrated by the download link, so a badge would only repeat them.
  */
 export const hero = {
-  badge: "Currently in testing",
   headingLead: "Scan, extract, and organize",
   headingAccent: "your documents.",
   body: "Intelligent Scanner lets you capture pages with the camera, fine-tune each one, and turn paper into organized digital information — in one focused mobile app.",
@@ -185,35 +184,37 @@ export const features = {
 /**
  * "Pricing" section copy.
  *
- * The app is in pre-launch and payments are not live, so no figure is
- * published here. The section explains the intended usage-based model without
- * presenting it as an active charge or a permanent commitment.
+ * The figure below is published because it is what the server actually
+ * charges: `EXTRACTION_COST_PER_PAGE_KOBO` is 5,000 kobo in the live
+ * configuration, so a page of extraction costs ₦50, debited from the wallet
+ * the user funds inside the app. A page is charged after its extraction has
+ * completed, so a failed extraction costs nothing.
  *
- * Deliberately excluded: any specific amount, subscription or plan language,
- * tier tables, guarantee or accuracy claims, and payment-provider or backend
- * implementation details.
+ * The button label comes from `appDownload` rather than being repeated here,
+ * so the download wording has exactly one owner.
+ *
+ * Deliberately excluded: subscription or plan language, tier tables, guarantee
+ * or accuracy claims, and payment-provider or backend implementation details.
  */
 export const pricing = {
   eyebrow: "Pricing",
   title: "Simple, usage-based pricing.",
   intro:
-    "Intelligent Scanner is designed around usage-based extraction. Pricing and payment will be available when the app launches.",
-  status: "Currently in testing",
+    "Intelligent Scanner charges for extraction by the page. You fund a wallet in the app, and each page you extract is debited from that balance.",
   card: {
     title: "Usage-based extraction",
     description:
       "Extraction is metered by the pages you choose to process, so the amount of work you do stays visible and understandable.",
     points: [
       "A single model, with nothing to compare against",
-      "Charging tied to the pages you choose to process",
-      "Nothing is published while the app is in testing",
+      "₦50 per page, charged once that page has been extracted",
+      "Nothing is charged for a page that fails to extract",
     ],
-    cta: "Coming Soon",
-    ctaNote: "Payments are not live yet. Nothing is charged at this stage.",
+    ctaNote: "Wallet funding and extraction charges are both live today.",
   },
   note: {
     title: "What this means right now",
-    body: "Pricing and payment will be available when the app launches. Details may change from this intended model as testing continues, so nothing here should be treated as a fixed commitment.",
+    body: "You pay for what you process: ₦50 per page, taken from your wallet only after that page has been extracted. Funding and extraction are both live in the Android app. The rate can still change while the app is in testing, so nothing here should be treated as a fixed commitment.",
   },
 } as const;
 
@@ -224,10 +225,9 @@ export const pricing = {
  * the implementation.
  *
  * Deliberately excluded: vendor names, payment-provider or backend details,
- * figures of any kind (prices, accuracy, timing, user counts), plan or tier
- * language, and any mention of cloud sync, offline operation, automatic
- * classification, handwriting recognition, export formats or enterprise
- * features.
+ * accuracy, timing and user-count claims, plan or tier language, and any
+ * mention of cloud sync, offline operation, automatic classification,
+ * handwriting recognition, export formats or enterprise features.
  */
 export const faq = {
   eyebrow: "FAQ",
@@ -268,12 +268,12 @@ export const faq = {
     {
       question: "How does pricing work?",
       answer:
-        "The intended model is usage-based extraction. Pricing and payment will be available when the app launches, and no figures are published at this stage.",
+        "Extraction is charged per page against a wallet you fund inside the app. It costs ₦50 for each page, and a page is only charged once its extraction has completed.",
     },
     {
       question: "Are payments live?",
       answer:
-        "No. Payment functionality is currently being tested, and live payments are not available at this stage.",
+        "Yes. You fund a wallet inside the app and extraction is charged against that balance, at ₦50 per page. Nothing is charged for a page that fails to extract.",
     },
   ],
 } as const;
@@ -281,17 +281,18 @@ export const faq = {
 /**
  * Closing CTA copy.
  *
- * The button stays inert: it refers to the full public launch, which has not
- * happened, and must not be confused with the Android download. The copy
- * around it therefore points at the APK that *is* available instead of
- * claiming nothing can be downloaded.
+ * The button is the Android download rather than a placeholder: the APK has
+ * been published for several releases, so a closing section reading "Coming
+ * Soon" would contradict the hero two screens above it. Its label and href
+ * both come from `appDownload`, so there is a single owner for the download
+ * wording and the release URL. The note restates platform availability
+ * instead of promising something that does not exist yet.
  */
 export const finalCta = {
   eyebrow: "Ready when you are",
   title: "A simpler way to work with scanned documents.",
-  body: "The Android app is out now as an early testing release — download it from the top of this page. The full public launch is still to come.",
-  cta: "Coming Soon",
-  ctaNote: "The full launch, including pricing and payments, is not live yet.",
+  body: "The Android app is out now as an early testing release — download it, fund a wallet, and start scanning.",
+  ctaNote: "Available for Android. There is no iOS version yet.",
 } as const;
 
 /**

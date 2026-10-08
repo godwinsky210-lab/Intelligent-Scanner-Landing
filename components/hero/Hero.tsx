@@ -1,6 +1,5 @@
 import { appDownload, hero, site } from "@/lib/site";
 import { ActionLink } from "@/components/ui/Button";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { HeroVisual } from "./HeroVisual";
 
 export function Hero() {
@@ -20,8 +19,6 @@ export function Hero() {
         <div className="grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-28">
           {/* Copy column */}
           <div className="animate-fade-rise max-w-xl">
-            <StatusBadge label={hero.badge} />
-
             <h1
               id="hero-heading"
               className="mt-6 text-4xl font-semibold tracking-tight text-balance text-navy-950 sm:text-5xl lg:text-[3.5rem] lg:leading-[1.08]"

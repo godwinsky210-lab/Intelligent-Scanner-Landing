@@ -2,10 +2,11 @@
  * Illustrates the usage-based model: a run of scanned pages feeding a single
  * extraction step.
  *
- * No figure, amount, or currency appears anywhere in this artwork. A price
- * would imply an active charge, and payments are not live yet. Bar heights are
- * fixed rather than animated, so nothing on screen can be read as a changing
- * quantity or a rate.
+ * No figure, amount, or currency appears anywhere in this artwork, even though
+ * the price is now published in the copy above it. A price belongs to copy
+ * that can be updated in one place; baked into a diagram it would silently go
+ * stale whenever the rate changes. Bar heights are fixed rather than animated,
+ * so nothing on screen can be read as a changing quantity or a rate.
  */
 export function UsageVisual() {
   const bars = [26, 44, 36, 58, 48];
