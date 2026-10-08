@@ -1,5 +1,5 @@
-import { hero, site } from "@/lib/site";
-import { ActionLink, Button } from "@/components/ui/Button";
+import { appDownload, hero, site } from "@/lib/site";
+import { ActionLink } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { HeroVisual } from "./HeroVisual";
 
@@ -35,16 +35,19 @@ export function Hero() {
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              {/* Intentionally inert: the product is not publicly available.
-                  Uses aria-disabled rather than the disabled attribute so it
-                  stays in the tab order and screen readers still announce it. */}
-              <Button
-                size="lg"
-                aria-disabled="true"
-                className="w-full cursor-not-allowed opacity-70 sm:w-auto"
+              {/* External direct download, so this is a plain anchor rather
+                  than `ActionLink`: next/link is for internal routes, and
+                  GitHub serves the asset with `Content-Disposition:
+                  attachment`, which is what triggers the download. The class
+                  string reproduces Button's primary variant at size `lg`, so
+                  the button looks the same now that it is active. */}
+              <a
+                href={appDownload.url}
+                download
+                className="inline-flex w-full items-center justify-center gap-2 rounded-pill bg-navy-800 px-6 py-3 text-base font-medium text-white shadow-soft transition-colors duration-200 hover:bg-navy-700 hover:shadow-lift sm:w-auto"
               >
-                {hero.primaryCta}
-              </Button>
+                {appDownload.label}
+              </a>
               <ActionLink
                 href={`mailto:${site.supportEmail}`}
                 variant="secondary"
@@ -55,15 +58,17 @@ export function Hero() {
               </ActionLink>
             </div>
 
-            {/* Plain-language availability note. Avoids implying the app can
-                be downloaded or used publicly today. */}
+            {/* Availability note. The Android APK is downloadable today;
+                iOS is not mentioned because it does not exist. */}
             <p className="mt-5 text-sm text-ink-500">
               {site.statusDetail}{" "}
               <a
-                href={`mailto:${site.supportEmail}`}
+                href={appDownload.releasePage}
+                target="_blank"
+                rel="noreferrer"
                 className="font-medium text-navy-700 underline underline-offset-4 hover:text-navy-900"
               >
-                {site.supportEmail}
+                View all releases
               </a>
             </p>
           </div>

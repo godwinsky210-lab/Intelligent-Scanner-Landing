@@ -7,8 +7,8 @@ export const site = {
    */
   description:
     "Intelligent Scanner — scan, enhance, organize, and extract information from documents.",
-  status: "Currently in testing",
-  statusDetail: "Public release has not started yet.",
+  status: "Android APK available",
+  statusDetail: "The Android app is available as a direct APK download. It is an early testing release.",
   supportEmail: "godwinsky210@gmail.com",
   icon: "/intelligent-scanner-icon.png",
   ogImage: "/og-image.png",
@@ -27,6 +27,24 @@ const siteUrl =
 export { siteUrl };
 
 /**
+ * Android APK download, published as GitHub Release v1.0.0.
+ *
+ * Points at the release asset itself rather than the release page so the
+ * link downloads the file directly. GitHub serves these with
+ * `Content-Disposition: attachment`, which is what makes the download work
+ * without any server-side handling of our own.
+ *
+ * Bumping to a new release means changing both the tag and the filename
+ * below: they are separate parts of the URL, so a mismatch produces a 404
+ * rather than a redirect. Keep the two in step when publishing.
+ */
+export const appDownload = {
+  label: "Download Android App",
+  url: "https://github.com/godwinsky210-lab/Intelligent-Scanner-Landing/releases/download/v1.0.0/Intelligent-Scanner-v1.0.0.apk",
+  releasePage: "https://github.com/godwinsky210-lab/Intelligent-Scanner-Landing/releases",
+} as const;
+
+/**
  * Primary navigation. These anchor targets are filled in by the sections
  * built after the hero.
  */
@@ -38,14 +56,18 @@ export const navLinks = [
 
 /**
  * Hero copy. Kept here so product language lives in one place.
- * Avoids vendor names, availability claims, and comparative claims.
+ * Avoids vendor names and comparative claims.
+ *
+ * The primary CTA label lives in `appDownload` rather than here, since it
+ * describes the download rather than the hero. `badge` still says "Currently
+ * in testing" because that remains true: the Android APK is published as an
+ * early testing release, not a finished launch.
  */
 export const hero = {
   badge: "Currently in testing",
   headingLead: "Scan, extract, and organize",
   headingAccent: "your documents.",
   body: "Intelligent Scanner lets you capture pages with the camera, fine-tune each one, and turn paper into organized digital information — in one focused mobile app.",
-  primaryCta: "Coming Soon",
   secondaryCta: "Contact us",
   // Describes the full transformation rather than a single frame, since the
   // visual now shows handwritten notes becoming typed text. Updated from the
@@ -241,7 +263,7 @@ export const faq = {
     {
       question: "Is Intelligent Scanner available yet?",
       answer:
-        "Not yet. The app is currently in testing and has not publicly launched, so it is not yet available to download or use.",
+        "Yes, for Android. The app is published as an early testing release, and the APK can be downloaded from this page. There is no iOS version yet.",
     },
     {
       question: "How does pricing work?",
@@ -259,23 +281,25 @@ export const faq = {
 /**
  * Closing CTA copy.
  *
- * Restrained by design: the app is pre-launch, so this invites interest
- * without collecting anything, offering a download, or implying the app is
- * available. The button is inert, matching the Pricing section.
+ * The button stays inert: it refers to the full public launch, which has not
+ * happened, and must not be confused with the Android download. The copy
+ * around it therefore points at the APK that *is* available instead of
+ * claiming nothing can be downloaded.
  */
 export const finalCta = {
   eyebrow: "Ready when you are",
   title: "A simpler way to work with scanned documents.",
-  body: "Intelligent Scanner is currently in testing. Follow along as the app moves toward launch.",
+  body: "The Android app is out now as an early testing release — download it from the top of this page. The full public launch is still to come.",
   cta: "Coming Soon",
-  ctaNote: "The app is not publicly available yet.",
+  ctaNote: "The full launch, including pricing and payments, is not live yet.",
 } as const;
 
 /**
  * Footer copy and link groups.
  *
- * Only real internal anchors and routes are listed. There is no download,
- * sign-up or external destination, because none exists yet.
+ * These groups stay internal anchors and routes on purpose: the footer is
+ * navigation, not a download surface. The Android APK lives in the hero, and
+ * external release URLs live in `appDownload` above.
  */
 export const footer = {
   description:
